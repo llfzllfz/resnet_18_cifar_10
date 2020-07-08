@@ -10,6 +10,7 @@ class cifar_data:
         self.testX,self.testY = self.test_data()
         self.batch_size = config.batch_size
         self.now_idx = 0
+        self.test_idx = 0
     
     def unpickle(self,filename):
         with open(filename,'rb') as f:
@@ -62,5 +63,20 @@ class cifar_data:
                 Y = np.vstack((Y,self.trainY[self.now_idx]))
             count = count + 1
             self.now_idx = self.now_idx + 1
-        return X,Y
+        return X / 255.0,Y
 
+    def next_test_batch(self):
+        X = []
+        Y = []
+        count = 0
+        while count < self.batch_size:
+            if count == 0:
+                X = self.testX[self.test_idx]
+                X = X.reshape(1,32,32,3)
+                Y = self.testY[self.test_idx]
+            else:
+                X = np.vstack((X,self.testX[self.test_idx].reshape(1,32,32,3)))
+                Y = np.vstack((Y,self.testY[self.test_idx]))
+            count = count + 1
+            self.test_idx = self.test_idx + 1
+        return X / 255.0,Y
